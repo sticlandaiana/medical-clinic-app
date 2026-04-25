@@ -1,0 +1,38 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.SpecialitiesModel
+@{
+    ViewData["Title"] = "Specialități";
+}
+
+<h2>Specialități Medicale</h2>
+
+<form method="post">
+    <div class="input-group mb-3">
+        <input asp-for="NewSpecialityName" class="form-control" placeholder="Nume specialitate nouă" />
+        <button type="submit" class="btn btn-primary">Adaugă</button>
+    </div>
+    <span asp-validation-for="NewSpecialityName" class="text-danger"></span>
+</form>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Specialities)
+        {
+            <tr>
+                <td>@s.Name</td>
+                <td>
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="id" value="@s.SpecialityId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

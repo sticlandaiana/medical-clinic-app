@@ -1,0 +1,69 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.ConsultationTypesModel
+@{
+    ViewData["Title"] = "Tipuri de Consultație";
+}
+
+<h2>Tipuri de Consultație</h2>
+
+<form method="post">
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <input asp-for="NewName" class="form-control" placeholder="Nume consultație" />
+            <span asp-validation-for="NewName" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <select asp-for="NewSpecialityId" class="form-select"
+                    asp-items="@(new SelectList(Model.Specialities, "SpecialityId", "Name"))">
+                <option value="">-- Selectează specialitatea --</option>
+            </select>
+            <span asp-validation-for="NewSpecialityId" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewDuration" class="form-control" placeholder="Durată (minute)" type="number" min="5" />
+            <span asp-validation-for="NewDuration" class="text-danger"></span>
+        </div>
+        <div class="col-md-2 d-flex align-items-center">
+            <div class="form-check">
+                <input asp-for="NewRequiresNurse" class="form-check-input" type="checkbox" />
+                <label asp-for="NewRequiresNurse" class="form-check-label">Necesită asistentă</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Adaugă</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Specialitate</th>
+            <th>Durată (min)</th>
+            <th>Necesită Asistentă</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.ConsultationTypes)
+        {
+            <tr>
+                <td>@c.Name</td>
+                <td>@c.Speciality.Name</td>
+                <td>@c.Duration</td>
+                <td>
+                    <span class="badge @(c.RequiresNurse ? "bg-warning text-dark" : "bg-secondary")">
+                        @(c.RequiresNurse ? "Da" : "Nu")
+                    </span>
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="id" value="@c.ConsultationTypeId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

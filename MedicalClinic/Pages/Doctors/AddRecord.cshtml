@@ -1,0 +1,44 @@
+﻿@page
+@model MedicalClinic.Pages.Doctors.AddRecordModel
+@{
+    ViewData["Title"] = "Adaugă Fișă Medicală";
+}
+
+<h2>Adaugă Fișă Medicală</h2>
+<h5 class="text-muted">Pacient: @Model.PatientName | Data: @Model.AppointmentDate</h5>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="AppointmentId" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Tensiune Arterială</label>
+            <input asp-for="BloodPressure" class="form-control" placeholder="ex: 120/80" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Greutate (kg)</label>
+            <input asp-for="Weight" class="form-control" type="number" step="0.1" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Temperatură (°C)</label>
+            <input asp-for="Temperature" class="form-control" type="number" step="0.1" />
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Diagnostic</label>
+            <input asp-for="Diagnoses" class="form-control" placeholder="Diagnostic" />
+            <span asp-validation-for="Diagnoses" class="text-danger"></span>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Note Consultație</label>
+            <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Observații..."></textarea>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Salvează Fișa</button>
+            <a href="/Doctors/MyAppointments" class="btn btn-secondary">Înapoi</a>
+        </div>
+    </div>
+</form>

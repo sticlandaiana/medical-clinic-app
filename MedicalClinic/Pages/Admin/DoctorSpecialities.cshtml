@@ -1,0 +1,54 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.DoctorSpecialitiesModel
+@{
+    ViewData["Title"] = "Specialități Doctori";
+}
+
+<h2>Asignare Specialități Doctori</h2>
+
+<form method="post">
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <select asp-for="SelectedDoctorId" class="form-select"
+                    asp-items="@(new SelectList(Model.Doctors, "DoctorId", "Name"))">
+                <option value="">-- Selectează doctorul --</option>
+            </select>
+            <span asp-validation-for="SelectedDoctorId" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <select asp-for="SelectedSpecialityId" class="form-select"
+                    asp-items="@(new SelectList(Model.Specialities, "SpecialityId", "Name"))">
+                <option value="">-- Selectează specialitatea --</option>
+            </select>
+            <span asp-validation-for="SelectedSpecialityId" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Asignează</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Specialitate</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ds in Model.DoctorSpecialities)
+        {
+            <tr>
+                <td>@ds.Doctor.Name</td>
+                <td>@ds.Speciality.Name</td>
+                <td>
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="id" value="@ds.DoctorSpecialityId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

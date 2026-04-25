@@ -1,0 +1,113 @@
+﻿@page
+@model MedicalClinic.Pages.Patients.BookAppointmentModel
+@{
+    ViewData["Title"] = "Programare Nouă";
+}
+
+<h2>Programare Nouă</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Specialitate</label>
+            <select asp-for="SelectedSpecialityId" id="specialitySelect" class="form-select">
+                <option value="">-- Selectează specialitatea --</option>
+                @foreach (var s in Model.Specialities)
+                {
+                    <option value="@s.SpecialityId">@s.Name</option>
+                }
+            </select>
+            <span asp-validation-for="SelectedSpecialityId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Tip Consultație</label>
+            <select asp-for="SelectedConsultationTypeId" id="consultationSelect" class="form-select">
+                <option value="">-- Selectează tipul --</option>
+                @foreach (var ct in Model.ConsultationTypes)
+                {
+                    <option value="@ct.ConsultationTypeId" data-speciality="@ct.SpecialityId">@ct.Name</option>
+                }
+            </select>
+            <span asp-validation-for="SelectedConsultationTypeId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Doctor</label>
+            <select asp-for="SelectedDoctorId" id="doctorSelect" class="form-select">
+                <option value="">-- Selectează doctorul --</option>
+                @foreach (var d in Model.Doctors)
+                {
+                    foreach (var ds in d.DoctorSpecialities)
+                    {
+                        <option value="@d.DoctorId" data-speciality="@ds.SpecialityId">@d.Name</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="SelectedDoctorId" class="text-danger"></span>
+            <div id="doctorProfileLink" class="mt-1" style="display:none">
+                <a id="profileLink" href="#" target="_blank" class="btn btn-sm btn-outline-info">
+                    Vezi Profilul Doctorului
+                </a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Data și Ora</label>
+            <input asp-for="SelectedDateTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="SelectedDateTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Confirmă Programarea</button>
+            <a href="/Patients/Dashboard" class="btn btn-secondary">Anulează</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const specialitySelect = document.getElementById('specialitySelect');
+        const consultationSelect = document.getElementById('consultationSelect');
+        const doctorSelect = document.getElementById('doctorSelect');
+
+        const allConsultations = Array.from(consultationSelect.options).slice(1);
+        const allDoctors = Array.from(doctorSelect.options).slice(1);
+
+        specialitySelect.addEventListener('change', function () {
+            const selectedId = this.value;
+
+            // Filtreaza tipurile de consultatie
+            consultationSelect.innerHTML = '<option value="">-- Selectează tipul --</option>';
+            allConsultations
+                .filter(o => o.dataset.speciality === selectedId)
+                .forEach(o => consultationSelect.appendChild(o.cloneNode(true)));
+
+            // Filtreaza doctorii
+            doctorSelect.innerHTML = '<option value="">-- Selectează doctorul --</option>';
+            allDoctors
+                .filter(o => o.dataset.speciality === selectedId)
+                .forEach(o => doctorSelect.appendChild(o.cloneNode(true)));
+
+            // Ascunde linkul profilului când se schimbă specialitatea
+            document.getElementById('doctorProfileLink').style.display = 'none';
+        });
+
+        doctorSelect.addEventListener('change', function () {
+            const doctorId = this.value;
+            const profileLink = document.getElementById('doctorProfileLink');
+            const link = document.getElementById('profileLink');
+            if (doctorId) {
+                link.href = `/Patients/DoctorProfile?doctorId=${doctorId}`;
+                profileLink.style.display = 'block';
+            } else {
+                profileLink.style.display = 'none';
+            }
+        });
+    </script>
+}   

@@ -1,0 +1,53 @@
+﻿@page
+@model MedicalClinic.Pages.Nurses.DailyReportModel
+@{
+    ViewData["Title"] = "Raport Zilnic";
+}
+
+<h2>Raport Zilnic — @DateTime.Now.ToString("dd/MM/yyyy")</h2>
+
+<p class="text-muted">Total pacienți așteptați: <strong>@Model.Appointments.Count</strong></p>
+
+@if (Model.Appointments.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ora</th>
+                <th>Pacient</th>
+                <th>Doctor</th>
+                <th>Tip Consultație</th>
+                <th>Sală</th>
+                <th>Asistentă</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Appointments)
+            {
+                <tr class="@(a.Status == "Cancelled" ? "table-danger" : "")">
+                    <td>@a.StartTime.ToString("HH:mm")</td>
+                    <td>@a.Patient.Name</td>
+                    <td>@a.Doctor.Name</td>
+                    <td>@a.ConsultationType.Name</td>
+                    <td>@a.Room.Name</td>
+                    <td>@(a.Nurse?.Name ?? "-")</td>
+                    <td>
+                        <span class="badge
+                            @(a.Status == "Scheduled" ? "bg-primary" :
+                                                            a.Status == "Completed" ? "bg-success" :
+                                                            a.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                            @a.Status
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">Nu există programări pentru astăzi.</div>
+}
+
+<a href="/Nurses/Dashboard" class="btn btn-secondary mt-2">Înapoi</a>

@@ -1,0 +1,98 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.StaffModel
+@{
+    ViewData["Title"] = "Gestionare Personal";
+}
+
+<h2>Gestionare Personal</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input asp-for="NewName" class="form-control" placeholder="Nume complet" />
+            <span asp-validation-for="NewName" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <input asp-for="NewEmail" class="form-control" placeholder="Email" />
+            <span asp-validation-for="NewEmail" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <input asp-for="NewPassword" class="form-control" placeholder="Parolă" type="password" />
+            <span asp-validation-for="NewPassword" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <select asp-for="NewRole" class="form-select">
+                <option value="">-- Rol --</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Nurse">Asistentă</option>
+            </select>
+            <span asp-validation-for="NewRole" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Adaugă</button>
+        </div>
+    </div>
+</form>
+
+<h4>Doctori</h4>
+<table class="table table-striped mb-4">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Email</th>
+            <th>Specialități</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model.Doctors)
+        {
+            <tr>
+                <td>@d.Name</td>
+                <td>@d.User.Email</td>
+                <td>@string.Join(", ", d.DoctorSpecialities.Select(ds => ds.Speciality.Name))</td>
+                <td>
+                    <form method="post" asp-page-handler="DeleteStaff" style="display:inline">
+                        <input type="hidden" name="userId" value="@d.UserId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4>Asistente</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Email</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var n in Model.Nurses)
+        {
+            <tr>
+                <td>@n.Name</td>
+                <td>@n.User.Email</td>
+                <td>
+                    <form method="post" asp-page-handler="DeleteStaff" style="display:inline">
+                        <input type="hidden" name="userId" value="@n.UserId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

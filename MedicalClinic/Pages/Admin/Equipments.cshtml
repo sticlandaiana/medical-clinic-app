@@ -1,0 +1,68 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.EquipmentsModel
+@{
+    ViewData["Title"] = "Echipamente";
+}
+
+<h2>Echipamente Medicale</h2>
+
+<form method="post">
+    <div class="row g-3 mb-3">
+        <div class="col-md-4">
+            <input asp-for="NewEquipmentName" class="form-control" placeholder="Nume echipament" />
+            <span asp-validation-for="NewEquipmentName" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <select asp-for="NewEquipmentRoomId" class="form-select"
+                    asp-items="@(new SelectList(Model.Rooms, "RoomId", "Name"))">
+                <option value="">-- Selectează sala --</option>
+            </select>
+            <span asp-validation-for="NewEquipmentRoomId" class="text-danger"></span>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Adaugă</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Sală</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model.Equipments)
+        {
+            <tr>
+                <td>@e.Name</td>
+                <td>@e.Room.Name</td>
+                <td>
+                    <span class="badge
+                        @(e.Status == "Functional" ? "bg-success" :
+                                                    e.Status == "Maintenance" ? "bg-warning text-dark" : "bg-danger")">
+                        @e.Status
+                    </span>
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="ChangeStatus" style="display:inline">
+                        <input type="hidden" name="id" value="@e.EquipmentId" />
+                        <select name="status" class="form-select form-select-sm d-inline w-auto">
+                            <option value="Functional" selected="@(e.Status == "Functional")">Functional</option>
+                            <option value="Maintenance" selected="@(e.Status == "Maintenance")">Maintenance</option>
+                            <option value="Defect" selected="@(e.Status == "Defect")">Defect</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-warning">Schimbă</button>
+                    </form>
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="id" value="@e.EquipmentId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

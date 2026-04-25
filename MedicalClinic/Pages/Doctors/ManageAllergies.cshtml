@@ -1,0 +1,65 @@
+﻿@page
+@model MedicalClinic.Pages.Doctors.ManageAllergiesModel
+@{
+    ViewData["Title"] = "Gestionare Alergii";
+}
+
+<h2>Gestionare Alergii — @Model.PatientName</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<form method="post">
+    <input type="hidden" name="patientId" value="@Model.PatientId" />
+    <div class="row g-3 mb-3">
+        <div class="col-md-5">
+            <input asp-for="Description" class="form-control" placeholder="Descriere alergie" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <div class="form-check">
+                <input asp-for="IsCritical" class="form-check-input" type="checkbox" />
+                <label asp-for="IsCritical" class="form-check-label">Critică</label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Adaugă</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Descriere</th>
+            <th>Severitate</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.Allergies)
+        {
+            <tr>
+                <td>@a.Description</td>
+                <td>
+                    <span class="badge @(a.IsCritical ? "bg-danger" : "bg-warning text-dark")">
+                        @(a.IsCritical ? "Critică" : "Moderată")
+                    </span>
+                </td>
+                <td>
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="allergyId" value="@a.AllergyId" />
+                        <input type="hidden" name="patientId" value="@Model.PatientId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/Doctors/PatientRecord?patientId=@Model.PatientId" class="btn btn-secondary mt-2">
+    Înapoi la Dosar
+</a>

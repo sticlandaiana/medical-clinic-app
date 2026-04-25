@@ -1,0 +1,64 @@
+﻿@page
+@model MedicalClinic.Pages.Doctors.MyAppointmentsModel
+@{
+    ViewData["Title"] = "Programările Mele";
+}
+
+<h2>Programările Mele</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Pacient</th>
+            <th>Tip Consultație</th>
+            <th>Sală</th>
+            <th>Asistentă</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.Appointments)
+        {
+            <tr>
+                <td>@a.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@a.Patient.Name</td>
+                <td>@a.ConsultationType.Name</td>
+                <td>@a.Room.Name</td>
+                <td>@(a.Nurse?.Name ?? "-")</td>
+                <td>
+                    <span class="badge
+                        @(a.Status == "Scheduled" ? "bg-primary" :
+                                                    a.Status == "Completed" ? "bg-success" :
+                                                    a.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        @a.Status
+                    </span>
+                </td>
+                <td>
+                    @if (a.Status == "Scheduled")
+                    {
+                        <form method="post" asp-page-handler="Complete" style="display:inline">
+                            <input type="hidden" name="id" value="@a.AppointmentId" />
+                            <button type="submit" class="btn btn-sm btn-success">Finalizează</button>
+                        </form>
+                        <form method="post" asp-page-handler="NoShow" style="display:inline">
+                            <input type="hidden" name="id" value="@a.AppointmentId" />
+                            <button type="submit" class="btn btn-sm btn-warning">No Show</button>
+                        </form>
+                    }
+                    @if (a.Status == "Completed")
+                    {
+                        <a href="/Doctors/AddRecord?appointmentId=@a.AppointmentId"
+                           class="btn btn-sm btn-primary">Adaugă Fișă</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

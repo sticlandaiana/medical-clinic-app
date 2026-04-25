@@ -1,0 +1,177 @@
+﻿@page
+@model MedicalClinic.Pages.Doctors.PatientRecordModel
+@{
+    ViewData["Title"] = "Dosar Medical";
+}
+
+<h2>Dosar Medical — @Model.PatientName</h2>
+
+@if (Model.Allergies.Any())
+{
+    <div class="alert alert-danger">
+        <strong>⚠️ ALERGII:</strong>
+        @foreach (var a in Model.Allergies)
+        {
+            <span class="badge bg-danger me-1">@a.Description @(a.IsCritical ? "(CRITIC)" : "")</span>
+        }
+    </div>
+}
+
+<h4 class="mt-4">Istoric Consultații</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Diagnostic</th>
+            <th>Tensiune</th>
+            <th>Greutate</th>
+            <th>Temperatură</th>
+            <th>Note</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Records)
+        {
+            <tr>
+                <td>@r.Appointment.StartTime.ToString("dd/MM/yyyy")</td>
+                <td>@r.Diagnoses</td>
+                <td>@r.BloodPressure</td>
+                <td>@r.Weight kg</td>
+                <td>@r.Temperature °C</td>
+                <td>@r.Notes</td>
+                <td>
+                    <a href="/Doctors/EditRecord?recordId=@r.MedicalRecordEntryId"
+                       class="btn btn-sm btn-warning">Editează</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-4">Evoluție Indicatori</h4>
+<div class="row">
+    <div class="col-md-4">
+        <canvas id="weightChart"></canvas>
+    </div>
+    <div class="col-md-4">
+        <canvas id="temperatureChart"></canvas>
+    </div>
+    <div class="col-md-4">
+        <canvas id="bloodPressureChart"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        const labels = [@Html.Raw(string.Join(",", Model.Records.Select(r => $"'{r.Appointment.StartTime:dd/MM}'").Reverse()))];
+        
+        const weights = [@Html.Raw(string.Join(",", Model.Records.Select(r => r.Weight).Reverse()))];
+        const temperatures = [@Html.Raw(string.Join(",", Model.Records.Select(r => r.Temperature).Reverse()))];
+        const systolic = [@Html.Raw(string.Join(",", Model.Records.Select(r => {
+            var parts = r.BloodPressure?.Split('/');
+            return (parts != null && parts.Length == 2 && int.TryParse(parts[0], out int v)) ? v : 0;
+        }).Reverse()))];
+
+        new Chart(document.getElementById('weightChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Greutate (kg)',
+                    data: weights,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        new Chart(document.getElementById('temperatureChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperatură (°C)',
+                    data: temperatures,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        new Chart(document.getElementById('bloodPressureChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Tensiune Sistolică',
+                    data: systolic,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+    </script>
+}
+
+<h4 class="mt-4">Documente Externe</h4>
+@if (Model.ExternalDocuments.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tip Document</th>
+                <th>Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.ExternalDocuments)
+            {
+                <tr>
+                    <td>@d.DocumentType</td>
+                    <td>
+                        <a href="@d.FilePath" target="_blank" class="btn btn-sm btn-outline-primary">Vezi</a>
+                        <form method="post" asp-page-handler="DeleteDocument" style="display:inline">
+                            <input type="hidden" name="docId" value="@d.ExternalDocumentId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Nu există documente externe.</p>
+}
+
+<form method="post" asp-page-handler="UploadDocument" enctype="multipart/form-data" class="mt-3">
+    <input type="hidden" name="patientId" value="@Model.PatientId" />
+    <div class="row g-2">
+        <div class="col-md-3">
+            <select name="documentType" class="form-select">
+                <option value="Analiză">Analiză</option>
+                <option value="Investigație">Investigație</option>
+                <option value="Tratament">Tratament</option>
+                <option value="Altele">Altele</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Încarcă Document</button>
+        </div>
+    </div>
+</form>
+
+<a href="/Doctors/MyPatients" class="btn btn-secondary mt-3">Înapoi</a>
+<a href="/Doctors/ManageAllergies?patientId=@Model.PatientId" class="btn btn-warning mt-2">Gestionare Alergii</a>

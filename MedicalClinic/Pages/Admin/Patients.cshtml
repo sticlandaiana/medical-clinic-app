@@ -1,0 +1,50 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.PatientsModel
+@{
+    ViewData["Title"] = "Gestionare Pacienți";
+}
+
+<h2>Gestionare Pacienți</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Email</th>
+            <th>No-Show</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.Patients)
+        {
+            <tr>
+                <td>@p.Name</td>
+                <td>@p.User.Email</td>
+                <td>@p.NoShowCount</td>
+                <td>
+                    <span class="badge @(p.NoShowCount >= 3 ? "bg-danger" : "bg-success")">
+                        @(p.NoShowCount >= 3 ? "Suspendat" : "Activ")
+                    </span>
+                </td>
+                <td>
+                    @if (p.NoShowCount >= 3)
+                    {
+                        <form method="post" asp-page-handler="ResetNoShow" style="display:inline">
+                            <input type="hidden" name="patientId" value="@p.PatientId" />
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Resetează No-Show
+                            </button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

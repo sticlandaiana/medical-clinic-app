@@ -1,0 +1,157 @@
+﻿@page
+@model MedicalClinic.Pages.Patients.MyRecordModel
+@{
+    ViewData["Title"] = "Dosarul Meu Medical";
+}
+
+<h2>Dosarul Meu Medical</h2>
+
+@if (Model.Allergies.Any())
+{
+    <div class="alert alert-danger">
+        <strong>⚠️ ALERGII:</strong>
+        @foreach (var a in Model.Allergies)
+        {
+            <span class="badge bg-danger me-1">@a.Description @(a.IsCritical ? "(CRITIC)" : "")</span>
+        }
+    </div>
+}
+
+<h4 class="mt-4">Istoric Consultații</h4>
+@if (Model.Records.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Doctor</th>
+                <th>Diagnostic</th>
+                <th>Tensiune</th>
+                <th>Greutate</th>
+                <th>Temperatură</th>
+                <th>Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in Model.Records)
+            {
+                <tr>
+                    <td>@r.Appointment.StartTime.ToString("dd/MM/yyyy")</td>
+                    <td>@r.Doctor.Name</td>
+                    <td>@r.Diagnoses</td>
+                    <td>@r.BloodPressure</td>
+                    <td>@r.Weight kg</td>
+                    <td>@r.Temperature °C</td>
+                    <td>@r.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4 class="mt-4">Evoluție Indicatori</h4>
+    <div class="row">
+        <div class="col-md-4">
+            <canvas id="weightChart"></canvas>
+        </div>
+        <div class="col-md-4">
+            <canvas id="temperatureChart"></canvas>
+        </div>
+        <div class="col-md-4">
+            <canvas id="bloodPressureChart"></canvas>
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted">Nu există înregistrări medicale încă.</p>
+}
+
+<h4 class="mt-4">Documente Externe</h4>
+@if (Model.ExternalDocuments.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tip Document</th>
+                <th>Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.ExternalDocuments)
+            {
+                <tr>
+                    <td>@d.DocumentType</td>
+                    <td>
+                        <a href="@d.FilePath" target="_blank"
+                           class="btn btn-sm btn-outline-primary">Vezi</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Nu există documente externe.</p>
+}
+
+<a href="/Patients/Dashboard" class="btn btn-secondary mt-3">Înapoi</a>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script>
+        const labels = [@Html.Raw(string.Join(",", Model.Records.Select(r => $"'{r.Appointment.StartTime:dd/MM}'").Reverse()))];
+
+        const weights = [@Html.Raw(string.Join(",", Model.Records.Select(r => r.Weight).Reverse()))];
+        const temperatures = [@Html.Raw(string.Join(",", Model.Records.Select(r => r.Temperature).Reverse()))];
+        const systolic = [@Html.Raw(string.Join(",", Model.Records.Select(r => {
+            var parts = r.BloodPressure?.Split('/');
+            return (parts != null && parts.Length == 2 && int.TryParse(parts[0], out int v)) ? v : 0;
+        }).Reverse()))];
+
+        new Chart(document.getElementById('weightChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Greutate (kg)',
+                    data: weights,
+                    borderColor: 'rgb(54, 162, 235)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        new Chart(document.getElementById('temperatureChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperatură (°C)',
+                    data: temperatures,
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        new Chart(document.getElementById('bloodPressureChart'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Tensiune Sistolică',
+                    data: systolic,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1,
+                    fill: false
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+    </script>
+}

@@ -1,0 +1,145 @@
+﻿@page
+@model MedicalClinic.Pages.Nurses.AppointmentsModel
+@{
+    ViewData["Title"] = "Gestionare Programări";
+}
+
+<h2>Gestionare Programări</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<h4>Programare Nouă pentru Pacient</h4>
+<form method="post">
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">Pacient</label>
+            <select asp-for="SelectedPatientId" class="form-select"
+                    asp-items="@(new SelectList(Model.Patients, "PatientId", "Name"))">
+                <option value="">-- Selectează pacientul --</option>
+            </select>
+            <span asp-validation-for="SelectedPatientId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Specialitate</label>
+            <select asp-for="SelectedSpecialityId" id="specialitySelect" class="form-select">
+                <option value="">-- Selectează specialitatea --</option>
+                @foreach (var s in Model.Specialities)
+                {
+                    <option value="@s.SpecialityId">@s.Name</option>
+                }
+            </select>
+            <span asp-validation-for="SelectedSpecialityId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Tip Consultație</label>
+            <select asp-for="SelectedConsultationTypeId" id="consultationSelect" class="form-select">
+                <option value="">-- Selectează tipul --</option>
+                @foreach (var ct in Model.ConsultationTypes)
+                {
+                    <option value="@ct.ConsultationTypeId"
+                            data-speciality="@ct.SpecialityId">@ct.Name</option>
+                }
+            </select>
+            <span asp-validation-for="SelectedConsultationTypeId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Doctor</label>
+            <select asp-for="SelectedDoctorId" id="doctorSelect" class="form-select">
+                <option value="">-- Selectează doctorul --</option>
+                @foreach (var d in Model.Doctors)
+                {
+                    foreach (var ds in d.DoctorSpecialities)
+                    {
+                        <option value="@d.DoctorId"
+                                data-speciality="@ds.SpecialityId">@d.Name</option>
+                    }
+                }
+            </select>
+            <span asp-validation-for="SelectedDoctorId" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Data și Ora</label>
+            <input asp-for="SelectedDateTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="SelectedDateTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Creează Programare</button>
+        </div>
+    </div>
+</form>
+
+<h4>Toate Programările</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Pacient</th>
+            <th>Doctor</th>
+            <th>Tip Consultație</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.Appointments)
+        {
+            <tr>
+                <td>@a.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@a.Patient.Name</td>
+                <td>@a.Doctor.Name</td>
+                <td>@a.ConsultationType.Name</td>
+                <td>
+                    <span class="badge
+                        @(a.Status == "Scheduled" ? "bg-primary" :
+                                                    a.Status == "Completed" ? "bg-success" :
+                                                    a.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        @a.Status
+                    </span>
+                </td>
+                <td>
+                    @if (a.Status == "Scheduled")
+                    {
+                        <a href="/Nurses/EditAppointment?appointmentId=@a.AppointmentId"
+                           class="btn btn-sm btn-warning">Editează</a>
+                        <form method="post" asp-page-handler="Cancel" style="display:inline">
+                            <input type="hidden" name="id" value="@a.AppointmentId" />
+                            <button type="submit" class="btn btn-sm btn-danger">Anulează</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        const specialitySelect = document.getElementById('specialitySelect');
+        const consultationSelect = document.getElementById('consultationSelect');
+        const doctorSelect = document.getElementById('doctorSelect');
+
+        const allConsultations = Array.from(consultationSelect.options).slice(1);
+        const allDoctors = Array.from(doctorSelect.options).slice(1);
+
+        specialitySelect.addEventListener('change', function () {
+            const selectedId = this.value;
+
+            consultationSelect.innerHTML = '<option value="">-- Selectează tipul --</option>';
+            allConsultations
+                .filter(o => o.dataset.speciality === selectedId)
+                .forEach(o => consultationSelect.appendChild(o.cloneNode(true)));
+
+            doctorSelect.innerHTML = '<option value="">-- Selectează doctorul --</option>';
+            allDoctors
+                .filter(o => o.dataset.speciality === selectedId)
+                .forEach(o => doctorSelect.appendChild(o.cloneNode(true)));
+        });
+    </script>
+}

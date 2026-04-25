@@ -1,0 +1,35 @@
+﻿@page
+@model MedicalClinic.Pages.Nurses.EditAppointmentModel
+@{
+    ViewData["Title"] = "Editează Programare";
+}
+
+<h2>Editează Programare</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<form method="post">
+    <input type="hidden" asp-for="AppointmentId" />
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Pacient</label>
+            <input class="form-control" value="@Model.PatientName" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Doctor</label>
+            <input class="form-control" value="@Model.DoctorName" disabled />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Data și Ora</label>
+            <input asp-for="NewDateTime" class="form-control" type="datetime-local" />
+            <span asp-validation-for="NewDateTime" class="text-danger"></span>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Salvează</button>
+            <a href="/Nurses/Appointments" class="btn btn-secondary">Anulează</a>
+        </div>
+    </div>
+</form>

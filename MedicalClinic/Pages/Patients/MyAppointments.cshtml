@@ -1,0 +1,68 @@
+﻿@page
+@model MedicalClinic.Pages.Patients.MyAppointmentsModel
+@{
+    ViewData["Title"] = "Programările Mele";
+}
+
+<h2>Programările Mele</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<a href="/Patients/BookAppointment" class="btn btn-primary mb-3">Programare Nouă</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Doctor</th>
+            <th>Specialitate</th>
+            <th>Tip Consultație</th>
+            <th>Sală</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model.Appointments)
+        {
+            <tr>
+                <td>@a.StartTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@a.Doctor.Name</td>
+                <td>@a.ConsultationType.Speciality.Name</td>
+                <td>@a.ConsultationType.Name</td>
+                <td>@a.Room.Name</td>
+                <td>
+                    <span class="badge
+                        @(a.Status == "Scheduled" ? "bg-primary" :
+                                                    a.Status == "Completed" ? "bg-success" :
+                                                    a.Status == "Cancelled" ? "bg-danger" : "bg-warning text-dark")">
+                        @a.Status
+                    </span>
+                </td>
+                <td>
+                    @if (a.Status == "Scheduled")
+                    {
+                        @if ((a.StartTime - DateTime.Now).TotalHours >= 24)
+                        {
+                            <form method="post" asp-page-handler="Cancel">
+                                <input type="hidden" name="id" value="@a.AppointmentId" />
+                                <button type="submit" class="btn btn-sm btn-danger">Anulează</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <small class="text-muted">Anulare doar telefonic</small>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

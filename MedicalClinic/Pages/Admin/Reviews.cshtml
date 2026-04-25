@@ -1,0 +1,49 @@
+﻿@page
+@model MedicalClinic.Pages.Admin.ReviewsModel
+@{
+    ViewData["Title"] = "Moderare Recenzii";
+}
+
+<h2>Moderare Recenzii</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Pacient</th>
+            <th>Doctor</th>
+            <th>Rating</th>
+            <th>Comentariu</th>
+            <th>Status</th>
+            <th>Acțiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Reviews)
+        {
+            <tr>
+                <td>@(r.IsAnonymous ? "Anonim" : r.Patient.Name)</td>
+                <td>@r.Doctor.Name</td>
+                <td>@string.Concat(Enumerable.Repeat("⭐", r.Score))</td>
+                <td>@r.Comment</td>
+                <td>
+                    <span class="badge @(r.IsApproved ? "bg-success" : "bg-warning text-dark")">
+                        @(r.IsApproved ? "Aprobat" : "În așteptare")
+                    </span>
+                </td>
+                <td>
+                    @if (!r.IsApproved)
+                    {
+                        <form method="post" asp-page-handler="Approve" style="display:inline">
+                            <input type="hidden" name="id" value="@r.ReviewId" />
+                            <button type="submit" class="btn btn-sm btn-success">Aprobă</button>
+                        </form>
+                    }
+                    <form method="post" asp-page-handler="Delete" style="display:inline">
+                        <input type="hidden" name="id" value="@r.ReviewId" />
+                        <button type="submit" class="btn btn-sm btn-danger">Șterge</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

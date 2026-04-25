@@ -1,0 +1,59 @@
+﻿@page
+@model MedicalClinic.Pages.Patients.DoctorProfileModel
+@{
+    ViewData["Title"] = "Profil Doctor";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">@Model.DoctorName</h4>
+                <p class="text-muted">@Model.Specialities</p>
+                <hr />
+                <h5>Rating Mediu</h5>
+                <h2>
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span style="color: @(i <= Math.Round(Model.AverageRating) ? "#ffc107" : "#e4e5e9")">★</span>
+                    }
+                </h2>
+                <p>
+                    @Model.AverageRating.ToString("0.0") / 5.0
+                    (@Model.TotalReviews recenzii)
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h4>Recenzii Pacienți</h4>
+        @if (Model.Reviews.Any())
+        {
+            @foreach (var r in Model.Reviews)
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <strong>@(r.IsAnonymous ? "Anonim" : r.Patient.Name)</strong>
+                            <span class="text-warning">
+                                @string.Concat(Enumerable.Repeat("★", r.Score))
+                                @string.Concat(Enumerable.Repeat("☆", 5 - r.Score))
+                            </span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(r.Comment))
+                        {
+                            <p class="mt-2 mb-0">@r.Comment</p>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted">Nu există recenzii aprobate încă.</p>
+        }
+    </div>
+</div>
+
+<a href="/Patients/BookAppointment" class="btn btn-primary mt-3">Fă o Programare</a>
+<a href="/Patients/Dashboard" class="btn btn-secondary mt-3">Înapoi</a>
