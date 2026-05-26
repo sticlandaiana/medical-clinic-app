@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>MedicalClinic.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Moq" Version="4.20.69" />
+  </ItemGroup>
+
+  <!-- Include Models and Data from main project directly as source files -->
+  <ItemGroup>
+    <Compile Include="../MedicalClinic/Models/Appointment.cs" />
+    <Compile Include="../MedicalClinic/Models/Patient.cs" />
+    <Compile Include="../MedicalClinic/Models/Doctor.cs" />
+    <Compile Include="../MedicalClinic/Models/Nurse.cs" />
+    <Compile Include="../MedicalClinic/Models/Room.cs" />
+    <Compile Include="../MedicalClinic/Models/ConsultationType.cs" />
+    <Compile Include="../MedicalClinic/Models/Speciality.cs" />
+    <Compile Include="../MedicalClinic/Models/Equipment.cs" />
+    <Compile Include="../MedicalClinic/Models/Review.cs" />
+    <Compile Include="../MedicalClinic/Models/Allergy.cs" />
+    <Compile Include="../MedicalClinic/Models/MedicalRecordEntry.cs" />
+    <Compile Include="../MedicalClinic/Models/ExternalDocument.cs" />
+    <Compile Include="../MedicalClinic/Models/DoctorSpeciality.cs" />
+    <Compile Include="../MedicalClinic/Models/NurseDoctorAssignment.cs" />
+    <Compile Include="../MedicalClinic/Models/Administrator.cs" />
+    <Compile Include="../MedicalClinic/Models/AuditLog.cs" />
+    <Compile Include="../MedicalClinic/Data/ApplicationDbContext.cs" />
+  </ItemGroup>
+
+</Project>
